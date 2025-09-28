@@ -56,11 +56,11 @@ class RyzenCpuCollector
     private void updateParameters()
     {
         this.coreMeasures = new List<CoreMeasures>();
-        this.cpuMeasures = new CpuMeasures((Dictionary<string, object>)map.GetValueOrDefault("cpu_measures"), cpu, DateTime.Now);
+        this.cpuMeasures = new CpuMeasures((Dictionary<string, object>)map.GetValueOrDefault("cpu_measures"), cpu, DateTime.UtcNow);
         ICollection coreMeasuresList = map.GetValueOrDefault("core_measures");
         foreach (var coreInfo in coreMeasuresList)
         {
-            CoreMeasures coreMeasures = new CoreMeasures((Dictionary<string, float>)coreInfo, cpu, DateTime.Now);
+            CoreMeasures coreMeasures = new CoreMeasures((Dictionary<string, float>)coreInfo, cpu, DateTime.UtcNow);
             this.coreMeasures.Add(coreMeasures);
         }
         addLoadPerThread();
@@ -77,7 +77,7 @@ class RyzenCpuCollector
             if (index < 12)
             {
                 CoreMeasures coreMeasures = this.coreMeasures[index % 6];
-                coreMeasures.setThreadLoad(sensor.Value.Value, index, DateTime.Now);
+                coreMeasures.setThreadLoad(sensor.Value.Value, index, DateTime.UtcNow);
             }
             if (index == 12) { cpuMeasures.setTotalLoad(sensor.Value.Value); }
             if (index == 13) { cpuMeasures.setMaxLoadOfOneCore(sensor.Value.Value); }

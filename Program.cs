@@ -20,7 +20,6 @@ RyzenCpuCollector cpuCollector = new(computer);
 cpuCollector.collectData();
 Console.WriteLine(cpuCollector.ToString());
 
-
 MemoryCollector memoryCollector = new(computer);
 memoryCollector.CollectData();
 Console.WriteLine(memoryCollector.ToString());
@@ -30,6 +29,12 @@ gpuCollector.CollectData();
 gpuCollector.GetGpuMeasures().ForEach(m => Console.WriteLine(m.ToString()));
 
 Console.WriteLine("Detectando hardware...");
+
+MeleneDbContext meleneDbContext = new();
+Persistency persistency = new(meleneDbContext);
+persistency.persistAll(cpuCollector, memoryCollector, gpuCollector);
+
+
 
 Thread.Sleep(500);
 

@@ -40,19 +40,19 @@ public class CpuMeasures
         this.Cpu = cpu;
         this.Timestamp = timestamp;
         this.CurrentMode = cpuInfo.GetValueOrDefault("mode")?.ToString() ?? string.Empty;
-        
+
         var powerMeasures = cpuInfo.GetValueOrDefault("power") as Dictionary<string, float>;
         if (powerMeasures != null) parsePowerMeasures(powerMeasures);
-        
+
         var temperatureMeasures = cpuInfo.GetValueOrDefault("temperature") as Dictionary<string, float>;
         if (temperatureMeasures != null) parseTemperatureMeasures(temperatureMeasures);
-        
+
         var currentMeasures = cpuInfo.GetValueOrDefault("current") as Dictionary<string, float>;
         if (currentMeasures != null) parseCurrent(currentMeasures);
-        
+
         var voltageMeasures = cpuInfo.GetValueOrDefault("voltage") as Dictionary<string, float>;
         if (voltageMeasures != null) parseVoltageMeasures(voltageMeasures);
-        
+
         var frequencyMeasures = cpuInfo.GetValueOrDefault("frequency") as Dictionary<string, float>;
         if (frequencyMeasures != null) parseFrequencyMeasures(frequencyMeasures);
     }

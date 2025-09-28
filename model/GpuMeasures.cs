@@ -30,7 +30,7 @@ public class GPUMeasure
         this.TotalMemory = totalMemory;
         this.TotalMemoryUsage = totalMemoryUsage;
         this.FreeMemory = freeMemory;
-        this.TimeStamp = DateTime.Now;
+        this.TimeStamp = DateTime.UtcNow;
     }
 
     public override string ToString()

@@ -3,8 +3,8 @@ using LibreHardwareMonitor.Hardware;
 
 class MemoryCollector
 {
-    private MemoryMeasure physicalMemory { get; set; }
-    private MemoryMeasure virtualMemory { get; set; }
+    public MemoryMeasure physicalMemory { get; set; }
+    public MemoryMeasure virtualMemory { get; set; }
     private Computer computer { get; set; }
 
 
@@ -23,7 +23,7 @@ class MemoryCollector
     private void setMemoryValues(IHardware memory)
     {
         memory.Update();
-        DateTime timeStamp = DateTime.Now;
+        DateTime timeStamp = DateTime.UtcNow;
         float memoryUsed = memory.Sensors.ElementAt(0).Value.Value;
         float memoryAvaliable = memory.Sensors.ElementAt(1).Value.Value;
         float memoryUsagePercentage = memory.Sensors.ElementAt(2).Value.Value;
