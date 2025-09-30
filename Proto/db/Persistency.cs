@@ -82,7 +82,7 @@ class Persistency
         SaveMemoryData(memoryMeasureEntity);
         SaveMemoryData(physicalMemoryEntity);
         coreMeasuresEntities.ForEach(SaveCoreData);
-        threadsToPersist.ForEach(SaveCoreThread);
+        //threadsToPersist.ForEach(SaveCoreThread);
         gpuMeasureEntities.ForEach(SaveGpuData);
 
 
