@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class CoreMeasures
 {
     [Key, Column(Order = 0)]
-    public string CoreID { get; set; } = string.Empty;
+    public int CoreID { get; set; }
     [Key, Column(Order = 1)]
     public DateTime Timestamp { get; set; }
     public float Frequency { get; set; }
@@ -30,7 +30,7 @@ public class CoreMeasures
 
     private void parseCoreInfo(Dictionary<string, float> coreInfo)
     {
-        this.CoreID = coreInfo.GetValueOrDefault("core_id").ToString();
+        this.CoreID = (int)coreInfo.GetValueOrDefault("core_id");
         this.Frequency = coreInfo.GetValueOrDefault("frequency_mhz");
         this.FrequencyEff = coreInfo.GetValueOrDefault("frequency_effective_mhz");
         this.C0Residency = coreInfo.GetValueOrDefault("c0_residency_percent");
@@ -41,11 +41,11 @@ public class CoreMeasures
     {
         if (PhysicalThread == null)
         {
-            PhysicalThread = new CoreThread(threadId, load, timeStamp, this);
+            PhysicalThread = new CoreThread(threadId, load, this);
             CoreThreads.Add(PhysicalThread);
             return;
         }
-        VirtualThread = new CoreThread(threadId, load, timeStamp, this);
+        VirtualThread = new CoreThread(threadId, load, this);
         CoreThreads.Add(VirtualThread);
     }
 

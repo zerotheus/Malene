@@ -7,7 +7,7 @@ namespace Melene.Db
     public class CoreMeasuresEntity
     {
         [Key, Column("core_id", Order = 0)]
-        public string CoreID { get; set; } = string.Empty;
+        public int CoreID { get; set; }
 
         [Key, Column("timestamp", Order = 1)]
         public DateTime Timestamp { get; set; }

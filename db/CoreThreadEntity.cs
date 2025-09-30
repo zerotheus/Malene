@@ -1,4 +1,4 @@
-    using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Melene.Db
@@ -17,7 +17,7 @@ namespace Melene.Db
 
         // Chaves estrangeiras compostas para CoreMeasures
         [Column("core_id")]
-        public string CoreID { get; set; } = string.Empty;
+        public int CoreID { get; set; }
 
         [Column("core_timestamp")]
         public DateTime CoreTimestamp { get; set; }
@@ -35,20 +35,18 @@ namespace Melene.Db
             TimeStamp = coreThread.TimeStamp;
             Load = coreThread.Load;
             CoreID = coreThread.CoreID;
-            CoreTimestamp = coreThread.CoreTimestamp;
         }
 
         // Método para converter para o modelo (simplificado)
         public CoreThread ToModel()
         {
             // Como CoreThread tem um construtor complexo, criamos uma versão simplificada
-            return new CoreThread(ThreadID, Load, TimeStamp, CoreMeasures?.ToModel() ?? new CoreMeasures(new Dictionary<string, float>(), new Cpu(), TimeStamp))
+            return new CoreThread(ThreadID, Load, CoreMeasures?.ToModel() ?? new CoreMeasures(new Dictionary<string, float>(), new Cpu(), TimeStamp))
             {
                 ThreadID = this.ThreadID,
                 Load = this.Load,
                 TimeStamp = this.TimeStamp,
                 CoreID = this.CoreID,
-                CoreTimestamp = this.CoreTimestamp
             };
         }
     }
