@@ -13,30 +13,30 @@ Computer computer = new()
 
 };
 
-Console.WriteLine("Executando ryzen master");
-computer.Open();
+while (true)
+{
+    computer.Open();
 
-RyzenCpuCollector cpuCollector = new(computer);
-cpuCollector.collectData();
-Console.WriteLine(cpuCollector.ToString());
+    RyzenCpuCollector cpuCollector = new(computer);
+    cpuCollector.collectData();
+    Console.WriteLine(cpuCollector.ToString());
 
-MemoryCollector memoryCollector = new(computer);
-memoryCollector.CollectData();
-Console.WriteLine(memoryCollector.ToString());
+    MemoryCollector memoryCollector = new(computer);
+    memoryCollector.CollectData();
+    Console.WriteLine(memoryCollector.ToString());
 
-GpuCollector gpuCollector = new(computer);
-gpuCollector.CollectData();
-gpuCollector.GetGpuMeasures().ForEach(m => Console.WriteLine(m.ToString()));
+    GpuCollector gpuCollector = new(computer);
+    gpuCollector.CollectData();
+    gpuCollector.GetGpuMeasures().ForEach(m => Console.WriteLine(m.ToString()));
 
-Console.WriteLine("Detectando hardware...");
+    Console.WriteLine("Detectando hardware...");
 
-MeleneDbContext meleneDbContext = new();
-Persistency persistency = new(meleneDbContext);
-persistency.persistAll(cpuCollector, memoryCollector, gpuCollector);
+    MeleneDbContext meleneDbContext = new();
+    Persistency persistency = new(meleneDbContext);
+    persistency.persistAll(cpuCollector, memoryCollector, gpuCollector);
+    Thread.Sleep(2000);
+}
 
-
-
-Thread.Sleep(500);
 
 // foreach (IHardware hardware in computer.Hardware)
 // {
