@@ -49,8 +49,15 @@ namespace Melene.Db
             C0Residency = coreMeasures.C0Residency;
             Temperature = coreMeasures.Temperature;
             Load = coreMeasures.Load;
-            CoreThreads.Add(new CoreThreadEntity(coreMeasures.PhysicalThread));
-            CoreThreads.Add(new CoreThreadEntity(coreMeasures.VirtualThread));
+            foreach (var thread in coreMeasures.CoreThreads)
+            {
+                if (thread == null)
+                {
+                    continue;
+                }
+
+                CoreThreads.Add(new CoreThreadEntity(thread));
+            }
         }
 
         // Método para converter para o modelo

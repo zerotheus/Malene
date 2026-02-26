@@ -41,7 +41,7 @@ namespace Melene.Db
         public CoreThread ToModel()
         {
             // Como CoreThread tem um construtor complexo, criamos uma versão simplificada
-            return new CoreThread(ThreadID, Load, CoreMeasures?.ToModel() ?? new CoreMeasures(new Dictionary<string, float>(), new Cpu(), TimeStamp))
+            return new CoreThread(ThreadID, Load, CoreMeasures?.ToModel() ?? new CoreMeasures(new Dictionary<string, float>(), new Cpu(), TimeStamp), TimeStamp)
             {
                 ThreadID = this.ThreadID,
                 Load = this.Load,

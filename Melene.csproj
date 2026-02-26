@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <!-- <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" /> -->
-    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre477" />
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

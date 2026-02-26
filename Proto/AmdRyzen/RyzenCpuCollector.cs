@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using LibreHardwareMonitor.Hardware;
 
 class RyzenCpuCollector
@@ -14,6 +16,8 @@ class RyzenCpuCollector
     private Dictionary<string, ICollection> map;
 
     private Computer computer;
+
+    private static readonly Regex CoreSensorRegex = new(@"(?:CPU\s+)?Core #(?<core>\d+)(?: Thread #(?<thread>\d+))?", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 
     public RyzenCpuCollector(Computer computer)
@@ -68,20 +72,112 @@ class RyzenCpuCollector
 
     public void addLoadPerThread()
     {
-        IHardware cpu = computer.Hardware.FirstOrDefault(hardware => hardware.HardwareType == HardwareType.Cpu);
-        cpu.Update();
-        List<ISensor> loadSensors = cpu.Sensors.ToList().FindAll(sensor => sensor.SensorType == SensorType.Load);
-        for (int index = 0; index < loadSensors.Count; index++)
+        IHardware cpuHardware = computer.Hardware.FirstOrDefault(hardware => hardware.HardwareType == HardwareType.Cpu);
+        if (cpuHardware == null)
         {
-            ISensor sensor = loadSensors[index];
-            if (index < 12)
-            {
-                CoreMeasures coreMeasures = this.coreMeasures[index % 6];
-                coreMeasures.setThreadLoad(sensor.Value.Value, index, DateTime.UtcNow);
-            }
-            if (index == 12) { cpuMeasures.setTotalLoad(sensor.Value.Value); }
-            if (index == 13) { cpuMeasures.setMaxLoadOfOneCore(sensor.Value.Value); }
+            return;
         }
+
+        cpuHardware.Update();
+        List<ISensor> loadSensors = cpuHardware.Sensors
+            .Where(sensor => sensor.SensorType == SensorType.Load)
+            .ToList();
+
+        if (loadSensors.Count == 0 || cpuMeasures == null || coreMeasures.Count == 0)
+        {
+            return;
+        }
+
+        DateTime timestamp = DateTime.UtcNow;
+        Dictionary<int, CoreMeasures> coreLookup = coreMeasures
+            .GroupBy(core => core.CoreID)
+            .ToDictionary(group => group.Key, group => group.First());
+
+        foreach (ISensor sensor in loadSensors)
+        {
+            if (!sensor.Value.HasValue)
+            {
+                continue;
+            }
+
+            if (TryAssignCoreLoad(sensor, timestamp, coreLookup))
+            {
+                continue;
+            }
+
+            string sensorName = sensor.Name ?? string.Empty;
+            if (IsTotalLoadSensor(sensorName))
+            {
+                cpuMeasures.setTotalLoad(sensor.Value.Value);
+                continue;
+            }
+
+            if (IsMaxLoadSensor(sensorName))
+            {
+                cpuMeasures.setMaxLoadOfOneCore(sensor.Value.Value);
+            }
+        }
+    }
+
+    private bool TryAssignCoreLoad(ISensor sensor, DateTime timestamp, Dictionary<int, CoreMeasures> coreLookup)
+    {
+        string sensorName = sensor.Name ?? string.Empty;
+        Match match = CoreSensorRegex.Match(sensorName);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        if (!int.TryParse(match.Groups["core"].Value, out int parsedCore))
+        {
+            return false;
+        }
+
+        CoreMeasures? targetCore = SelectCoreForSensor(parsedCore, coreLookup);
+        if (targetCore == null)
+        {
+            return false;
+        }
+
+        int threadIdentifier = parsedCore;
+        if (match.Groups["thread"].Success && int.TryParse(match.Groups["thread"].Value, out int parsedThread))
+        {
+            threadIdentifier = parsedThread;
+        }
+
+        targetCore.setThreadLoad(sensor.Value!.Value, threadIdentifier, timestamp);
+        return true;
+    }
+
+    private CoreMeasures? SelectCoreForSensor(int parsedCore, Dictionary<int, CoreMeasures> coreLookup)
+    {
+        int zeroBasedIndex = parsedCore - 1;
+        if (zeroBasedIndex >= 0 && zeroBasedIndex < coreMeasures.Count)
+        {
+            return coreMeasures[zeroBasedIndex];
+        }
+
+        if (coreLookup.TryGetValue(parsedCore, out CoreMeasures exactMatch))
+        {
+            return exactMatch;
+        }
+
+        if (coreLookup.TryGetValue(parsedCore - 1, out CoreMeasures zeroBasedMatch))
+        {
+            return zeroBasedMatch;
+        }
+
+        return null;
+    }
+
+    private static bool IsTotalLoadSensor(string sensorName)
+    {
+        return sensorName.IndexOf("total", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static bool IsMaxLoadSensor(string sensorName)
+    {
+        return sensorName.IndexOf("max", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     public Cpu GetCpu()

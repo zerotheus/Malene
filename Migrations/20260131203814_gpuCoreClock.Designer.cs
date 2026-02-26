@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Melene.Migrations
 {
     [DbContext(typeof(MeleneDbContext))]
-    [Migration("20250928051759_v2")]
-    partial class v2
+    [Migration("20260131203814_gpuCoreClock")]
+    partial class gpuCoreClock
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,8 +26,8 @@ namespace Melene.Migrations
 
             modelBuilder.Entity("Melene.Db.CoreMeasuresEntity", b =>
                 {
-                    b.Property<string>("CoreID")
-                        .HasColumnType("text")
+                    b.Property<int>("CoreID")
+                        .HasColumnType("integer")
                         .HasColumnName("core_id")
                         .HasColumnOrder(0);
 
@@ -80,9 +80,8 @@ namespace Melene.Migrations
                         .HasColumnName("time_stamp")
                         .HasColumnOrder(1);
 
-                    b.Property<string>("CoreID")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("CoreID")
+                        .HasColumnType("integer")
                         .HasColumnName("core_id");
 
                     b.Property<DateTime>("CoreTimestamp")
@@ -241,6 +240,10 @@ namespace Melene.Migrations
                     b.Property<float>("FreeMemory")
                         .HasColumnType("real")
                         .HasColumnName("free_memory");
+
+                    b.Property<float>("GpuCoreClock")
+                        .HasColumnType("real")
+                        .HasColumnName("gpu_core_clock");
 
                     b.Property<float>("GpuCoreTemperature")
                         .HasColumnType("real")

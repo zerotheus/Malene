@@ -25,6 +25,9 @@ namespace Melene.Db
         [Column("gpu_core_temperature")]
         public float GpuCoreTemperature { get; set; }
 
+        [Column("gpu_core_clock")]
+        public float GpuCoreClock { get; set; }
+
         [Column("total_memory")]
         public float TotalMemory { get; set; }
 
@@ -33,6 +36,12 @@ namespace Melene.Db
 
         [Column("free_memory")]
         public float FreeMemory { get; set; }
+
+        [Column("gpu_power_draw_watts")]
+        public float? GpuPowerDrawWatts { get; set; }
+
+        [Column("gpu_chip_energy_joules")]
+        public float? GpuChipEnergyJoules { get; set; }
 
         // Construtor parameterless para EF
         public GpuMeasureEntity() { }
@@ -46,16 +55,20 @@ namespace Melene.Db
             TemperatureHotspot = gpuMeasure.TemperatureHotspot;
             MemoryTemperature = gpuMeasure.MemoryTemperature;
             GpuCoreTemperature = gpuMeasure.GpuCoreTemperature;
+            GpuCoreClock = gpuMeasure.GpuCoreClock;
             TotalMemory = gpuMeasure.TotalMemory;
             TotalMemoryUsage = gpuMeasure.TotalMemoryUsage;
             FreeMemory = gpuMeasure.FreeMemory;
+            GpuPowerDrawWatts = gpuMeasure.GpuPowerDrawWatts;
+            GpuChipEnergyJoules = gpuMeasure.GpuChipEnergyJoules;
         }
 
         // Método para converter para o modelo
         public GPUMeasure ToModel()
         {
             return new GPUMeasure(GpuName, MemoryUsage, TemperatureHotspot, MemoryTemperature,
-                                 GpuCoreTemperature, TotalMemory, TotalMemoryUsage, FreeMemory)
+                                 GpuCoreTemperature, GpuCoreClock, TotalMemory, TotalMemoryUsage, FreeMemory,
+                                 GpuPowerDrawWatts, GpuChipEnergyJoules)
             {
                 TimeStamp = this.TimeStamp,
                 GpuName = this.GpuName,
@@ -63,9 +76,12 @@ namespace Melene.Db
                 TemperatureHotspot = this.TemperatureHotspot,
                 MemoryTemperature = this.MemoryTemperature,
                 GpuCoreTemperature = this.GpuCoreTemperature,
+                GpuCoreClock = this.GpuCoreClock,
                 TotalMemory = this.TotalMemory,
                 TotalMemoryUsage = this.TotalMemoryUsage,
-                FreeMemory = this.FreeMemory
+                FreeMemory = this.FreeMemory,
+                GpuPowerDrawWatts = this.GpuPowerDrawWatts,
+                GpuChipEnergyJoules = this.GpuChipEnergyJoules
             };
         }
     }

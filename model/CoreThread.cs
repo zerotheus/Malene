@@ -13,13 +13,19 @@ public class CoreThread
     public CoreMeasures CoreMeasures { get; set; }
 
 
-    public CoreThread(int threadID, float load, CoreMeasures coreMeasures)
+    public CoreThread(int threadID, float load, CoreMeasures coreMeasures, DateTime? timeStamp = null)
     {
         this.ThreadID = threadID;
         this.Load = load;
-        this.TimeStamp = DateTime.UtcNow;
+        this.TimeStamp = timeStamp ?? DateTime.UtcNow;
         this.CoreMeasures = coreMeasures;
         this.CoreID = coreMeasures.CoreID;
+    }
+
+    public void Update(float load, DateTime timestamp)
+    {
+        this.Load = load;
+        this.TimeStamp = timestamp;
     }
 
     public override string ToString()

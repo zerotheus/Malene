@@ -14,22 +14,31 @@ public class GPUMeasure
 
     public float GpuCoreTemperature { get; set; }
 
+    public float GpuCoreClock { get; set; }
+
     public float TotalMemory { get; set; }
 
     public float TotalMemoryUsage { get; set; }
 
     public float FreeMemory { get; set; }
 
-    public GPUMeasure(string gpuName, float memoryUsage, float temperatureHotspot, float memoryTemperature, float gpuCoreTemperature, float totalMemory, float totalMemoryUsage, float freeMemory)
+    public float? GpuPowerDrawWatts { get; set; }
+
+    public float? GpuChipEnergyJoules { get; set; }
+
+    public GPUMeasure(string gpuName, float memoryUsage, float temperatureHotspot, float memoryTemperature, float gpuCoreTemperature, float gpuCoreClock, float totalMemory, float totalMemoryUsage, float freeMemory, float? gpuPowerDrawWatts = null, float? gpuChipEnergyJoules = null)
     {
         this.GpuName = gpuName;
         this.MemoryUsage = memoryUsage;
         this.TemperatureHotspot = temperatureHotspot;
         this.MemoryTemperature = memoryTemperature;
         this.GpuCoreTemperature = gpuCoreTemperature;
+        this.GpuCoreClock = gpuCoreClock;
         this.TotalMemory = totalMemory;
         this.TotalMemoryUsage = totalMemoryUsage;
         this.FreeMemory = freeMemory;
+        this.GpuPowerDrawWatts = gpuPowerDrawWatts;
+        this.GpuChipEnergyJoules = gpuChipEnergyJoules;
         this.TimeStamp = DateTime.UtcNow;
     }
 
@@ -48,6 +57,23 @@ public class GPUMeasure
         sb.AppendLine($"  GPU Core: {GpuCoreTemperature:F1}°C");
         sb.AppendLine($"  Memory: {MemoryTemperature:F1}°C");
         sb.AppendLine($"  Hotspot: {TemperatureHotspot:F1}°C");
+
+        sb.AppendLine("Clocks:");
+        sb.AppendLine($"  Core Clock: {GpuCoreClock:F0} MHz");
+
+        if (GpuPowerDrawWatts.HasValue || GpuChipEnergyJoules.HasValue)
+        {
+            sb.AppendLine("Power:");
+            if (GpuPowerDrawWatts.HasValue)
+            {
+                sb.AppendLine($"  Instantaneous: {GpuPowerDrawWatts.Value:F1} W");
+            }
+
+            if (GpuChipEnergyJoules.HasValue)
+            {
+                sb.AppendLine($"  Accumulated: {GpuChipEnergyJoules.Value:F0} J");
+            }
+        }
 
         return sb.ToString().TrimEnd();
     }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Melene.Migrations
 {
     [DbContext(typeof(MeleneDbContext))]
-    partial class MeleneDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250928211508_initial")]
+    partial class initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,14 +241,6 @@ namespace Melene.Migrations
                         .HasColumnType("real")
                         .HasColumnName("free_memory");
 
-                    b.Property<float?>("GpuChipEnergyJoules")
-                        .HasColumnType("real")
-                        .HasColumnName("gpu_chip_energy_joules");
-
-                    b.Property<float>("GpuCoreClock")
-                        .HasColumnType("real")
-                        .HasColumnName("gpu_core_clock");
-
                     b.Property<float>("GpuCoreTemperature")
                         .HasColumnType("real")
                         .HasColumnName("gpu_core_temperature");
@@ -254,10 +249,6 @@ namespace Melene.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("gpu_name");
-
-                    b.Property<float?>("GpuPowerDrawWatts")
-                        .HasColumnType("real")
-                        .HasColumnName("gpu_power_draw_watts");
 
                     b.Property<float>("MemoryTemperature")
                         .HasColumnType("real")

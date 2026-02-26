@@ -39,14 +39,37 @@ public class CoreMeasures
 
     public void setThreadLoad(float load, int threadId, DateTime timeStamp)
     {
+        this.Load = load;
+
         if (PhysicalThread == null)
         {
-            PhysicalThread = new CoreThread(threadId, load, this);
+            PhysicalThread = new CoreThread(threadId, load, this, timeStamp);
             CoreThreads.Add(PhysicalThread);
             return;
         }
-        VirtualThread = new CoreThread(threadId, load, this);
-        CoreThreads.Add(VirtualThread);
+
+        if (PhysicalThread.ThreadID == threadId)
+        {
+            PhysicalThread.Update(load, timeStamp);
+            return;
+        }
+
+        if (VirtualThread == null)
+        {
+            VirtualThread = new CoreThread(threadId, load, this, timeStamp);
+            CoreThreads.Add(VirtualThread);
+            return;
+        }
+
+        if (VirtualThread.ThreadID == threadId)
+        {
+            VirtualThread.Update(load, timeStamp);
+            return;
+        }
+
+        // Refresh the stalest thread slot when more samples arrive than expected.
+        CoreThread target = PhysicalThread.TimeStamp <= VirtualThread.TimeStamp ? PhysicalThread : VirtualThread;
+        target.Update(load, timeStamp);
     }
 
     public override string ToString()
