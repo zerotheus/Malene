@@ -40,8 +40,8 @@ while (true)
     iteration++;
     computer.Open();
 
-    RyzenCpuCollector cpuCollector = new(computer);
-    cpuCollector.collectData();
+    //RyzenCpuCollector cpuCollector = new(computer);
+    //cpuCollector.collectData();
     // Console.WriteLine(cpuCollector.ToString());
 
     MemoryCollector memoryCollector = new(computer);

@@ -76,12 +76,16 @@ public partial class Reinforciment
         }
         if (lastActionTaken == PossibleActions.IncreaseClock && CurrentGpuMeasure.GpuLoadPercent > targetUsage)
         {
+            Console.WriteLine("Good action: IncreaseClock would result in higher GPU load.");
             return true;
         }
         if (lastActionTaken == PossibleActions.LowerClock && CurrentGpuMeasure.GpuLoadPercent < targetUsage)
         {
+            Console.WriteLine("Good action: LowerClock would result in lower GPU load.");
             return true;
         }
+        Console.WriteLine(lastActionTaken);
+        Console.WriteLine("Action taken was not better than the OS selected.");
         return false;
     }
 
@@ -94,11 +98,12 @@ public partial class Reinforciment
     {
         if (lastActionTaken == PossibleActions.KeepClock && isKeepClockWithinTolerance())
         {
+            Console.WriteLine("Good action: KeepClock was within tolerance.");
             return true;
         }
-
         if (gpuLoadPercentIsCloserToTargetThanBefore() && isActionTakenEqualToOsSelected())
         {
+            Console.WriteLine("Good action: GPU load percent is closer to target than before.");
             return true;
         }
         if (!gpuLoadPercentIsCloserToTargetThanBefore() && !isActionTakenEqualToOsSelected())
@@ -118,7 +123,7 @@ public partial class Reinforciment
         float currentLoad = CurrentGpuMeasure.GpuLoadPercent.GetValueOrDefault();
         float lastLoad = LastGpuMeasure.GpuLoadPercent.GetValueOrDefault();
 
-        return Math.Abs(currentLoad - lastLoad) <= 2f;
+        return Math.Abs(currentLoad - lastLoad) <= 4f;
     }
 
     private bool gpuLoadPercentIsCloserToTargetThanBefore()
