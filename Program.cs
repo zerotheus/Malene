@@ -1,5 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using LibreHardwareMonitor.Hardware;
+using RLMatrix.Agents.Common;
+using RLMatrix;
+using Melene.MachineLearning;
 
 Computer computer = new()
 {
@@ -14,28 +17,51 @@ Computer computer = new()
 
 };
 
+DQNAgentOptions learning = new DQNAgentOptions(batchSize: 1,
+    memorySize: 1000,
+    gamma: 0.99f,
+    epsStart: 1f,
+    epsEnd: 0.05f,
+    epsDecay: 150f);
+
+
+Reinforciment reinforciment = new Reinforciment().RLInit();
+
+var env = new List<IEnvironmentAsync<float[]>>
+{
+    reinforciment
+};
+var agent = new LocalDiscreteRolloutAgent<float[]>(learning, env);
+
+int iteration = 0;
+
 while (true)
 {
+    iteration++;
     computer.Open();
 
     RyzenCpuCollector cpuCollector = new(computer);
     cpuCollector.collectData();
-    Console.WriteLine(cpuCollector.ToString());
+    // Console.WriteLine(cpuCollector.ToString());
 
     MemoryCollector memoryCollector = new(computer);
     memoryCollector.CollectData();
-    Console.WriteLine(memoryCollector.ToString());
+    //Console.WriteLine(memoryCollector.ToString());
 
     GpuCollector gpuCollector = new(computer);
     gpuCollector.CollectData();
-    gpuCollector.GetGpuMeasures().ForEach(m => Console.WriteLine(m.ToString()));
+    //gpuCollector.GetGpuMeasures().ForEach(m => Console.WriteLine(m.ToString()));
 
     Console.WriteLine("Detectando hardware...");
 
     MeleneDbContext meleneDbContext = new();
-    Persistency persistency = new(meleneDbContext);
-    persistency.persistAll(cpuCollector, memoryCollector, gpuCollector);
-    Thread.Sleep(1000);
+    // Persistency persistency = new(meleneDbContext);
+    // persistency.persistAll(cpuCollector, memoryCollector, gpuCollector);
+    // Thread.Sleep(50);
+    reinforciment.updateMeasure(gpuCollector);
+
+    await agent.Step();
+    Console.WriteLine($"[Iteracao {iteration}] Precisao recente: {reinforciment.RecentAccuracy:F2}% + {DateTime.Now}");
 }
 
 

@@ -43,6 +43,9 @@ namespace Melene.Db
         [Column("gpu_chip_energy_joules")]
         public float? GpuChipEnergyJoules { get; set; }
 
+        [Column("gpu_load_percent")]
+        public float? GpuLoadPercent { get; set; }
+
         // Construtor parameterless para EF
         public GpuMeasureEntity() { }
 
@@ -61,6 +64,7 @@ namespace Melene.Db
             FreeMemory = gpuMeasure.FreeMemory;
             GpuPowerDrawWatts = gpuMeasure.GpuPowerDrawWatts;
             GpuChipEnergyJoules = gpuMeasure.GpuChipEnergyJoules;
+            GpuLoadPercent = gpuMeasure.GpuLoadPercent;
         }
 
         // Método para converter para o modelo
@@ -68,7 +72,7 @@ namespace Melene.Db
         {
             return new GPUMeasure(GpuName, MemoryUsage, TemperatureHotspot, MemoryTemperature,
                                  GpuCoreTemperature, GpuCoreClock, TotalMemory, TotalMemoryUsage, FreeMemory,
-                                 GpuPowerDrawWatts, GpuChipEnergyJoules)
+                                 GpuPowerDrawWatts, GpuChipEnergyJoules, GpuLoadPercent)
             {
                 TimeStamp = this.TimeStamp,
                 GpuName = this.GpuName,
@@ -81,7 +85,8 @@ namespace Melene.Db
                 TotalMemoryUsage = this.TotalMemoryUsage,
                 FreeMemory = this.FreeMemory,
                 GpuPowerDrawWatts = this.GpuPowerDrawWatts,
-                GpuChipEnergyJoules = this.GpuChipEnergyJoules
+                GpuChipEnergyJoules = this.GpuChipEnergyJoules,
+                GpuLoadPercent = this.GpuLoadPercent
             };
         }
     }

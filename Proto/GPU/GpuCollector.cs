@@ -15,6 +15,7 @@ class GpuCollector
     private static readonly string[] HotspotTemperatureSensorNames = ["GPU Hot Spot"];
     private static readonly string[] PowerSensorNames = ["GPU Chip Power", "GPU Core Power", "GPU Total Power", "GPU SOC Power"];
     private static readonly string[] EnergySensorNames = ["GPU Chip Energy", "GPU Total Energy", "GPU SOC Energy"];
+    private static readonly string[] GpuLoadSensorNames = ["GPU Core", "GPU D3D", "GPU", "GPU Total"];
 
     public GpuCollector(Computer computer)
     {
@@ -25,6 +26,10 @@ class GpuCollector
     public void CollectData()
     {
         gpuMeasures.Clear();
+        float? highestGpuLoad = null;
+        string? highestGpuName = null;
+        string? highestLoadSensorName = null;
+
         List<IHardware> graphicsCards = computer.Hardware
             .Where(h => h.HardwareType == HardwareType.GpuAmd || h.HardwareType == HardwareType.GpuNvidia)
             .ToList();
@@ -38,9 +43,22 @@ class GpuCollector
                 continue;
             }
 
-            GPUMeasure measure = BuildGpuMeasure(gpu, sensors);
+            (float Value, string SensorName)? gpuLoad = TryGetRepresentativeGpuLoad(sensors);
+            if (gpuLoad.HasValue && (!highestGpuLoad.HasValue || gpuLoad.Value.Value > highestGpuLoad.Value))
+            {
+                highestGpuLoad = gpuLoad.Value.Value;
+                highestGpuName = gpu.Name;
+                highestLoadSensorName = gpuLoad.Value.SensorName;
+            }
+
+            GPUMeasure measure = BuildGpuMeasure(gpu, sensors, gpuLoad?.Value);
             gpuMeasures.Add(measure);
         }
+
+        // if (highestGpuLoad.HasValue)
+        // {
+        //     Console.WriteLine($"[GPU] Carga atual: {highestGpuLoad.Value:F1}% | GPU: {highestGpuName} | Sensor: {highestLoadSensorName}");
+        // }
     }
 
     private static void UpdateHardwareTree(IHardware hardware)
@@ -68,7 +86,7 @@ class GpuCollector
         }
     }
 
-    private static GPUMeasure BuildGpuMeasure(IHardware hardware, List<ISensor> sensors)
+    private static GPUMeasure BuildGpuMeasure(IHardware hardware, List<ISensor> sensors, float? gpuLoadPercent = null)
     {
         float totalMemory = GetRequiredSensorValue(sensors, SensorType.SmallData, MemoryTotalSensorNames);
         float memoryUsed = GetRequiredSensorValue(sensors, SensorType.SmallData, MemoryUsedSensorNames);
@@ -83,7 +101,7 @@ class GpuCollector
             ?? TryGetSensorValue(sensors, SensorType.Energy);
 
         return new GPUMeasure(hardware.Name, memoryUsed, hotspotTemperature, memoryTemperature, gpuCoreTemperature,
-            gpuCoreClock, totalMemory, memoryUsed, memoryFree, powerDraw, energyJoules);
+            gpuCoreClock, totalMemory, memoryUsed, memoryFree, powerDraw, energyJoules, gpuLoadPercent);
     }
 
     private static float GetRequiredSensorValue(List<ISensor> sensors, SensorType sensorType, params string[] sensorNames)
@@ -115,6 +133,42 @@ class GpuCollector
 
         ISensor? fallback = candidates.FirstOrDefault(sensor => sensor.Value.HasValue);
         return fallback?.Value;
+    }
+
+    private static (float Value, string SensorName)? TryGetRepresentativeGpuLoad(List<ISensor> sensors)
+    {
+        List<ISensor> loadSensors = sensors
+            .Where(sensor => sensor.SensorType == SensorType.Load && sensor.Value.HasValue)
+            .ToList();
+
+        if (loadSensors.Count == 0)
+        {
+            return null;
+        }
+
+        foreach (string preferredName in GpuLoadSensorNames)
+        {
+            ISensor? preferred = loadSensors.FirstOrDefault(sensor => sensor.Name.Equals(preferredName, StringComparison.OrdinalIgnoreCase));
+            if (preferred != null)
+            {
+                return (preferred.Value!.Value, preferred.Name);
+            }
+        }
+
+        ISensor? semanticMatch = loadSensors.FirstOrDefault(sensor =>
+            sensor.Name.Contains("total", StringComparison.OrdinalIgnoreCase) ||
+            sensor.Name.Contains("core", StringComparison.OrdinalIgnoreCase));
+
+        if (semanticMatch != null)
+        {
+            return (semanticMatch.Value!.Value, semanticMatch.Name);
+        }
+
+        ISensor fallback = loadSensors
+            .OrderBy(sensor => sensor.Name, StringComparer.OrdinalIgnoreCase)
+            .First();
+
+        return (fallback.Value!.Value, fallback.Name);
     }
 
     public List<GPUMeasure> GetGpuMeasures()

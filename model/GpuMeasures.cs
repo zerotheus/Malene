@@ -26,7 +26,9 @@ public class GPUMeasure
 
     public float? GpuChipEnergyJoules { get; set; }
 
-    public GPUMeasure(string gpuName, float memoryUsage, float temperatureHotspot, float memoryTemperature, float gpuCoreTemperature, float gpuCoreClock, float totalMemory, float totalMemoryUsage, float freeMemory, float? gpuPowerDrawWatts = null, float? gpuChipEnergyJoules = null)
+    public float? GpuLoadPercent { get; set; }
+
+    public GPUMeasure(string gpuName, float memoryUsage, float temperatureHotspot, float memoryTemperature, float gpuCoreTemperature, float gpuCoreClock, float totalMemory, float totalMemoryUsage, float freeMemory, float? gpuPowerDrawWatts = null, float? gpuChipEnergyJoules = null, float? gpuLoadPercent = null)
     {
         this.GpuName = gpuName;
         this.MemoryUsage = memoryUsage;
@@ -39,6 +41,7 @@ public class GPUMeasure
         this.FreeMemory = freeMemory;
         this.GpuPowerDrawWatts = gpuPowerDrawWatts;
         this.GpuChipEnergyJoules = gpuChipEnergyJoules;
+        this.GpuLoadPercent = gpuLoadPercent;
         this.TimeStamp = DateTime.UtcNow;
     }
 
@@ -60,6 +63,12 @@ public class GPUMeasure
 
         sb.AppendLine("Clocks:");
         sb.AppendLine($"  Core Clock: {GpuCoreClock:F0} MHz");
+
+        if (GpuLoadPercent.HasValue)
+        {
+            sb.AppendLine("Load:");
+            sb.AppendLine($"  GPU Load: {GpuLoadPercent.Value:F1}%");
+        }
 
         if (GpuPowerDrawWatts.HasValue || GpuChipEnergyJoules.HasValue)
         {
